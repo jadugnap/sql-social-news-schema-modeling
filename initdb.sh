@@ -31,10 +31,8 @@ psql -d udiddit -f bad-db.sql
 # ------ Topic can have an optional description of at most 500 chars
 # CREATE TABLE "topics" (
 #     "id" SERIAL PRIMARY KEY,
-#     "user_id" INTEGER,
 #     "name" VARCHAR(30) UNIQUE NOT NULL,
-#     "description" VARCHAR(500),
-#     CONSTRAINT "fk_topics_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+#     "description" VARCHAR(500)
 # );
 # ------ 2.5 Find a topic by its name
 # CREATE INDEX "topicname" ON "topics" ("name");
@@ -65,6 +63,7 @@ psql -d udiddit -f bad-db.sql
 # ------ 2.8 Find all posts that link to a specific URL, for moderation purposes
 # CREATE INDEX "posturl" ON "posts" ("url");
 
+
 # -- 1.4 Allow users to comment on existing posts. Comment text can’t be empty, must allow comment descendants
 # ------ If a user gets deleted, their comments will remain but dissociated from the user
 # ------ If a post gets deleted, all associated comments must be automatically deleted
@@ -83,6 +82,7 @@ psql -d udiddit -f bad-db.sql
 # );
 # ------ 2.10 List all the direct children of a parent comment
 # CREATE INDEX "direct_child" ON "comments" ("parent_id");
+
 
 # -- 1.5 A user can vote once on a given post. Store the (up/down) vote as the 1 and -1 respectively
 # ------ If a user gets deleted, their votes will remain but dissociated from the user
