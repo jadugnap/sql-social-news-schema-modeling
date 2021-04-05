@@ -99,6 +99,98 @@ psql -d udiddit -f bad-db.sql
 # """
 
 # # fill up 5 tables
-#
+# psql -d udiddit -c """
+# -- 1. Fill up "users" tab
+# INSERT INTO users ("name") (
+#     SELECT DISTINCT username FROM bad_comments
+#     UNION
+#     SELECT DISTINCT username FROM bad_posts
+#     UNION
+#     SELECT DISTINCT regexp_split_to_table(upvotes, ',') FROM bad_posts
+#     UNION
+#     SELECT DISTINCT regexp_split_to_table(downvotes, ',') FROM bad_posts
+# );
 
-# pg_dump udiddit > udiddit.sql
+# -- 2. Fill up "topics" tab
+# INSERT INTO topics ("name") (
+#     SELECT DISTINCT topic FROM bad_posts ORDER BY 1
+# );
+
+# -- 3. Fill up "posts" tab
+# INSERT INTO posts ("user_id", "topic_id", "title", "url", "text") (
+#     SELECT
+#         u.id,
+#         t.id,
+#         SUBSTRING(title, 1, 100),
+#         url,
+#         text_content
+#     FROM
+#         bad_posts AS bp
+#     JOIN
+#         users AS u
+#         ON bp.username = u.name
+#     JOIN
+#         topics AS t
+#         ON bp.topic = t.name
+#     ORDER BY 3
+# );
+
+# -- 4. Fill up "comments" tab
+# INSERT INTO comments ("user_id", "post_id", "text") (
+#     SELECT
+#         u.id,
+#         bc.post_id,
+#         bc.text_content
+#     FROM
+#         bad_comments AS bc
+#     JOIN
+#         users AS u
+#         ON bc.username = u.name
+#     ORDER BY 3
+# );
+
+# -- 5.1 Fill up "votes" tab from upvoting_user
+# INSERT INTO votes ("post_id", "user_id", "score") (
+#     SELECT
+#         bp.id,
+#         u.id,
+#         1 AS score
+#     FROM (
+#         SELECT
+#             id,
+#             regexp_split_to_table(upvotes, ',') AS upvoting_user
+#         FROM bad_posts
+#     ) AS bp
+#     JOIN
+#         users AS u
+#         ON bp.upvoting_user = u.name
+#     ORDER BY 1,2
+# );
+# -- 5.2 Fill up "votes" tab from downvoting_user
+# INSERT INTO votes ("post_id", "user_id", "score") (
+#     SELECT
+#         bp.id,
+#         u.id,
+#         -1 AS score
+#     FROM (
+#         SELECT
+#             id,
+#             regexp_split_to_table(downvotes, ',') AS downvoting_user
+#         FROM bad_posts
+#     ) AS bp
+#     JOIN
+#         users AS u
+#         ON bp.downvoting_user = u.name
+#     ORDER BY 1,2
+# );
+# """
+
+
+# ## RUN THIS AFTER create 5 tables & fill up 5 tables are all EXECUTED ##
+
+# pg_dump udiddit > final_udiddit.sql
+
+
+# ## RUN THIS AFTER bad-db.sql DUMPED ##
+
+# psql -d udiddit -f final_udiddit.sql
