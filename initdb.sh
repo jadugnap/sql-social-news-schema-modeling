@@ -22,7 +22,6 @@ psql -d udiddit -f bad-db.sql
 #     "id" SERIAL PRIMARY KEY,
 #     "name" VARCHAR(25) UNIQUE NOT NULL,
 #     "latest_login_time" TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC')
-
 # );
 # ------ 2.3 Find a user by their username
 # CREATE INDEX "username" ON "users" ("name");
@@ -54,7 +53,7 @@ psql -d udiddit -f bad-db.sql
 #     "title" VARCHAR(100) NOT NULL,
 #     "url" VARCHAR,
 #     "text" VARCHAR,
-#     "posted_time" TIMESTAMP,
+#     "posted_time" TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
 #     CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE SET NULL,
 #     CONSTRAINT "fk_posts_topics" FOREIGN KEY ("topic_id") REFERENCES "topics" ("id") ON DELETE CASCADE,
 #     CONSTRAINT "url_xor_text" CHECK (
@@ -77,7 +76,7 @@ psql -d udiddit -f bad-db.sql
 #     "post_id" INTEGER,
 #     "parent_id" INTEGER,
 #     "text" VARCHAR NOT NULL,
-#     "commented_time" TIMESTAMP,
+#     "commented_time" TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
 #     CONSTRAINT "fk_comments_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE SET NULL,
 #     CONSTRAINT "fk_comments_posts" FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
 #     CONSTRAINT "fk_parent_del_child" FOREIGN KEY ("parent_id") REFERENCES "comments" ("id") ON DELETE CASCADE
